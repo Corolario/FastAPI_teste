@@ -2,18 +2,25 @@
   <div id="app">
     <h1>CRUD - Gerenciador de Tarefas</h1>
 
+    <!-- Mensagens de Alerta -->
+    <div v-if="message.text" :class="['alert', message.type]">
+      {{ message.text }}
+    </div>
+
     <!-- Formulário -->
     <div class="form-container">
       <h2>{{ editingId ? 'Editar' : 'Adicionar' }} Tarefa</h2>
-      <input v-model="form.titulo" placeholder="Título" />
-      <input v-model="form.descricao" placeholder="Descrição" />
+      <input v-model="form.titulo" placeholder="Título" required />
+      <input v-model="form.descricao" placeholder="Descrição" required />
       <label>
         <input type="checkbox" v-model="form.concluido" />
         Concluído
       </label>
       <div>
-        <button @click="submitForm">{{ editingId ? 'Atualizar' : 'Criar' }}</button>
-        <button v-if="editingId" @click="cancelEdit">Cancelar</button>
+        <button @click="submitForm" :disabled="loading">
+          {{ loading ? 'Aguarde...' : (editingId ? 'Atualizar' : 'Criar') }}
+        </button>
+        <button v-if="editingId" @click="cancelEdit" :disabled="loading">Cancelar</button>
       </div>
     </div>
 
@@ -49,6 +56,16 @@ const form = ref({
   concluido: false
 })
 const editingId = ref(null)
+const loading = ref(false)
+const message = ref({ text: '', type: '' })
+
+// Mostrar mensagem temporária
+const showMessage = (text, type = 'success') => {
+  message.value = { text, type }
+  setTimeout(() => {
+    message.value = { text: '', type: '' }
+  }, 3000)
+}
 
 // Listar todos os itens
 const fetchItems = async () => {
@@ -57,21 +74,42 @@ const fetchItems = async () => {
     items.value = response.data
   } catch (error) {
     console.error('Erro ao buscar itens:', error)
+    showMessage('Erro ao carregar tarefas. O backend está rodando?', 'error')
   }
 }
 
 // Criar ou atualizar item
 const submitForm = async () => {
+  // Validação
+  if (!form.value.titulo.trim()) {
+    showMessage('Por favor, preencha o título', 'error')
+    return
+  }
+  if (!form.value.descricao.trim()) {
+    showMessage('Por favor, preencha a descrição', 'error')
+    return
+  }
+
+  loading.value = true
   try {
     if (editingId.value) {
       await axios.put(`${API_URL}/items/${editingId.value}`, form.value)
+      showMessage('Tarefa atualizada com sucesso!', 'success')
     } else {
       await axios.post(`${API_URL}/items`, form.value)
+      showMessage('Tarefa criada com sucesso!', 'success')
     }
     resetForm()
     fetchItems()
   } catch (error) {
     console.error('Erro ao salvar item:', error)
+    if (error.code === 'ERR_NETWORK') {
+      showMessage('Erro de conexão! Certifique-se de que o backend está rodando em http://localhost:8000', 'error')
+    } else {
+      showMessage('Erro ao salvar tarefa: ' + (error.response?.data?.detail || error.message), 'error')
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -143,6 +181,37 @@ h2 {
   margin-bottom: 15px;
 }
 
+.alert {
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .form-container {
   background: white;
   padding: 20px;
@@ -181,6 +250,11 @@ button {
   font-size: 14px;
   margin-right: 10px;
   transition: background 0.3s;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .form-container button:first-of-type {
