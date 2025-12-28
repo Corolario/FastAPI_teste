@@ -1,13 +1,16 @@
-# CRUD Básico - FastAPI + Vue3
+# CRUD Básico - FastAPI + Vue
 
-Aplicação CRUD simples usando FastAPI no backend e Vue3 no frontend.
+Aplicação CRUD simples usando FastAPI no backend com **duas opções de frontend**.
 
 ## 📋 Sobre o Projeto
 
 Este projeto demonstra um CRUD básico (Create, Read, Update, Delete) de tarefas com:
 - **Backend**: FastAPI (Python) rodando na porta 8000
-- **Frontend**: Vue 3 + Vite rodando na porta 5173
-- As aplicações rodam em servidores separados e se comunicam via HTTP
+- **Frontend**: Duas opções disponíveis
+  - 🟢 **Petite-Vue** (Recomendado): Versão minimalista (6kb), sem build, arquivo HTML único
+  - 🔵 **Vue 3 + Vite**: Versão completa com build process e componentes
+
+As aplicações rodam em servidores separados e se comunicam via HTTP.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -17,7 +20,12 @@ Este projeto demonstra um CRUD básico (Create, Read, Update, Delete) de tarefas
 - Uvicorn 0.34.0
 - Pydantic 2.10.4
 
-### Frontend
+### Frontend - Opção 1: Petite-Vue (Recomendado) ⭐
+- Petite-Vue 0.4.1 (6kb via CDN)
+- Fetch API nativa
+- Zero dependências, zero build
+
+### Frontend - Opção 2: Vue 3 Completo
 - Vue 3.5.13
 - Vite 6.0.5
 - Axios 1.7.9
@@ -30,10 +38,11 @@ FastAPI_teste/
 │   ├── main.py              # API FastAPI com endpoints CRUD
 │   └── requirements.txt     # Dependências Python
 ├── frontend/
-│   ├── src/
+│   ├── index-petite.html   # 🟢 Versão Petite-Vue (arquivo único)
+│   ├── src/                # 🔵 Versão Vue3 completa
 │   │   ├── App.vue         # Componente principal Vue
 │   │   └── main.js         # Entry point do Vue
-│   ├── index.html          # HTML principal
+│   ├── index.html          # HTML Vue3
 │   ├── package.json        # Dependências Node.js
 │   └── vite.config.js      # Configuração do Vite
 └── README.md               # Este arquivo
@@ -65,7 +74,30 @@ uvicorn main:app --reload
 # O backend estará rodando em: http://localhost:8000
 ```
 
-### 2️⃣ Frontend (Vue3)
+### 2️⃣ Frontend - Escolha uma opção
+
+#### 🟢 Opção A: Petite-Vue (Mais Simples - Recomendado)
+
+**Em outro terminal:**
+
+```bash
+# Navegue até a pasta do frontend
+cd frontend
+
+# Inicie um servidor HTTP simples
+python -m http.server 5173
+
+# O frontend estará rodando em: http://localhost:5173/index-petite.html
+```
+
+**Vantagens:**
+- ✅ Sem instalação de dependências (npm)
+- ✅ Sem build process
+- ✅ Arquivo HTML único
+- ✅ Apenas 6kb (via CDN)
+- ✅ Código mais simples e direto
+
+#### 🔵 Opção B: Vue 3 + Vite (Build Completo)
 
 **Em outro terminal:**
 
@@ -82,9 +114,17 @@ npm run dev
 # O frontend estará rodando em: http://localhost:5173
 ```
 
+**Vantagens:**
+- ✅ Hot Module Replacement (HMR)
+- ✅ TypeScript support
+- ✅ Component splitting
+- ✅ Build otimizado para produção
+
 ## 🎯 Como Usar
 
-1. Acesse http://localhost:5173 no navegador
+1. Acesse o frontend no navegador:
+   - **Petite-Vue**: http://localhost:5173/index-petite.html
+   - **Vue3 + Vite**: http://localhost:5173
 2. Use o formulário para adicionar novas tarefas
 3. Visualize todas as tarefas na lista abaixo
 4. Clique em "Editar" para modificar uma tarefa
